@@ -1,0 +1,256 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+<script src="~/Scripts/states.js"></script>
+@model OneIndiaInfo.Models.HomePageViewModel
+
+
+<div id="dvLodaing" class="k-loading-mask" style="width:50%;height:50%;display:none">
+    <span class="k-loading-text">Loading...</span><div class="k-loading-image">
+        <div class="k-loading-color"></div>
+    </div>
+</div>
+<div id="popNotify"></div>
+<div class="row-fluid">
+    
+    <div class="box black span8" ontablet="span6" ondesktop="span8">
+        <div class="box-header">
+            <h2><i class="halflings-icon white list"></i><span class="break"></span>Pincode by State/District/Post Office</h2>
+            <div class="box-icon">
+                <a class="btn-minimize" href="#"><i class="halflings-icon white chevron-up"></i></a>
+                <a class="btn-close" href="#"><i class="halflings-icon white remove"></i></a>
+            </div>
+        </div>
+        <div class="blue">
+            <div class="row-fluid sortable ui-sortable">
+                <div class="span6 offset1">
+
+                    <fieldset>
+                        <div class="row-fluid  voffset2">
+
+                            <div class="span3">
+                                <label>State</label>
+                            </div>
+
+                            <div class="span4"><input id="drpState" /></div>
+
+                        </div>
+
+                        <div class="row-fluid voffset2">
+                            <div class="span3">
+                                <label>District</label>
+                            </div>
+                            <div class="span4"><input id="drpDistrict" /></div>
+                        </div>
+                        <div class="row-fluid voffset2">
+                            <div class="span3">
+                                <label> Post Office</label>
+                            </div>
+                            <div class="span4"><input id="drpPostOffice" /></div>
+                        </div>
+                        <div class="row-fluid voffset2">
+                            <div class="span3">&nbsp;</div>
+                            <div class="span6"><a id="btnGetDetails" class="k-primary">Get Details</a></div>
+
+
+                        </div>
+
+                    </fieldset>
+                </div><!--/span-->
+
+                <div class="span5">
+
+                    <div id="dvPostOfficeDetail" style="display:none" class="row-fluid voffset2">
+
+                        @{Html.RenderPartial("~/Views/Pincode/PostOfficeDetailPartial.cshtml", Model.SelectedPostOfficeDetail);}
+                    </div>
+                </div>
+            </div>
+            <div class="row-fluid">&nbsp;</div>
+        </div>
+
+
+    </div>
+
+    <div class="box black span4" style="min-height:220px" ontablet="span5" ondesktop="span4">
+
+        <div class="box-header">
+            <h2><i class="halflings-icon white list"></i><span class="break"></span>Search By Pincode</h2>
+            <div class="box-icon">
+                <a class="btn-minimize" href="#"><i class="halflings-icon white chevron-up"></i></a>
+                <a class="btn-close" href="#"><i class="halflings-icon white remove"></i></a>
+            </div>
+        </div>
+        <div class="blue">
+            <div class="span10 offset1">
+                <div class="row-fluid  voffset2">
+
+                    <div class="span3">
+                        <label>Pincode</label>
+                    </div>
+                    
+                    <div class="span4"><input id="txtPincodeSearch" /></div>
+                    <div class="offset8"><a id="hypSearchByPincode" href="#"><i class="halflings-icon search white"></i></a></div>
+                </div>
+                <div class="row-fluid voffset2">
+                    <div class="span11">
+
+                        <div id="dvPostOfficeDetailByPincode" style="display:none" class="row-fluid">
+
+                            @{Html.RenderPartial("~/Views/Pincode/PostOfficeDetailPartial.cshtml", Model.SelectedPostOfficeDetail);}
+                        </div>
+                    </div>
+                </div>
+                <div class="row-fluid voffset2">&nbsp;</div>
+            </div>
+            
+        </div>
+    </div><!-- End .sparkStats -->
+</div>
+
+
+
+<script>
+    $(function () {
+
+        $("#txtPincodeSearch").kendoNumericTextBox({
+            spinners: false,
+           
+            max: 999999,
+            decimals: 0,
+            format:"999999"
+        });
+
+        $("#btnGetDetails").kendoButton();
+
+        $("#popNotify").kendoNotification({
+            stacking: "up",
+            button: true,
+            position: {
+                top: null,
+                left: 20,
+                bottom: 20,
+                right: null
+            }
+        });
+
+        var notifyWidget = $("#popNotify").getKendoNotification();
+
+        $("#btnGetDetails").on("click", function () {
+            if ($("#drpPostOffice").val() == "") {
+                notifyWidget.show("Please select a post office", "error");
+            }
+            else {
+                $("#dvLodaing").css("display", "block");
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Pincode/GetPostOfficeDetil",
+                    data: kendo.stringify({ PostOfficeId: $("#drpPostOffice").val() }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "html",
+                    success: function (data) {
+                        $("#dvLodaing").css("display", "none");
+                        $("#dvPostOfficeDetail").html(data);
+                        $("#dvPostOfficeDetail").css("display", "block");
+                    },
+                    error: function () {
+                        $("#dvPostOfficeDetail").css("display", "none");
+                    },
+                    always: function () {
+                        $("#dvLodaing").css("display", "none");
+                    }
+                });
+            }
+        });
+
+        $("#hypSearchByPincode").on("click", function () {
+            if ($("#txtPincodeSearch").val() == "") {
+                notifyWidget.show("Please enter a pincode", "error");
+                return;
+            }
+            if ($("#txtPincodeSearch").val().length < 6) {
+                notifyWidget.show("Please enter 6 digits", "error");
+                return;
+            }
+            $("#dvLodaing").css("display", "block");
+
+            $.ajax({
+                type: "POST",
+                url: "/Pincode/GetPostOfficeDetilByPincode",
+                data: kendo.stringify({ Pincode: $("#txtPincodeSearch").val() }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "html",
+                success: function (data) {
+                    $("#dvLodaing").css("display", "none");
+                    $("#dvPostOfficeDetailByPincode").html(data);
+                    $("#dvPostOfficeDetailByPincode").css("display", "block");
+                },
+                error: function () {
+                    $("#dvPostOfficeDetailByPincode").css("display", "none");
+                },
+                always: function () {
+                    $("#dvLodaing").css("display", "none");
+                }
+            });
+        });
+
+        $("#drpState").kendoDropDownList({
+            optionLabel: "Select State",
+            dataTextField: "Name",
+            dataValueField: "Name",
+            dataSource: statesDS,
+
+        });
+        $("#drpDistrict").kendoDropDownList({
+            autobind: false,
+            cascadeFrom: "drpState",
+            dataTextField: "DistrictName",
+            dataValueField: "DistrictName",
+            optionLabel: "Select District",
+            dataSource: {
+                serverFiltering: true,
+                type: "json",
+                transport: {
+                    read: {
+                        type: "POST",
+                        url: "/Pincode/GetDistricts",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        data: function () {
+                            return { "StateCode": $("#drpState").val() }
+                        }
+                    },
+                    parameterMap: function (data, type) {
+                        return kendo.stringify(data);
+                    }
+                }
+            }
+        });
+        $("#drpPostOffice").kendoDropDownList({
+            autobind: false,
+            cascadeFrom: "drpDistrict",
+            dataTextField: "OfficeName",
+            dataValueField: "Id",
+            optionLabel: "Select PostOffice",
+            dataSource: {
+                serverFiltering: true,
+                type: "json",
+                transport: {
+                    read: {
+                        type: "POST",
+                        url: "/Pincode/GetPostOffices",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        data: function () {
+                            return { "DistrictName": $("#drpDistrict").val() }
+                        }
+                    },
+                    parameterMap: function (data, type) {
+                        return kendo.stringify(data);
+                    }
+                }
+            }
+        });
+    });
+</script>

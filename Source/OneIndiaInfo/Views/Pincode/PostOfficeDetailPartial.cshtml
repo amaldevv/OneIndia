@@ -1,0 +1,37 @@
+﻿@model OneIndiaInfo.Models.PostOfficeDetail
+
+@*<div class="row voffset1">
+    <div class="col-md-4"> <span>Post Office</span></div>
+    <div class="col-md-6"><span>@Model.OfficeName</span></div>
+</div>
+<div class="row voffset1">
+    <div class="col-md-4"> <span>Pincode</span></div>
+    <div class="col-md-6"><span>@Model.Pincode</span></div>
+</div>
+<div class="row voffset1">
+    <div class="col-md-4"> <span>Circle Name</span></div>
+    <div class="col-md-6"><span>@Model.CircleName</span></div>
+</div>
+<div class="row voffset1">
+    <div class="col-md-4"> <span>Region Name</span></div>
+    <div class="col-md-6"><span>@Model.RegionName</span></div>
+</div>*@
+
+<div ondesktop="span4" ontablet="span6" class="black span11" >
+
+    <div class="box-content" >
+        <ul class="dashboard-list metro">
+        <li class="green">
+
+            <strong>Post Office:</strong> @Model.OfficeName<br>
+            <strong>Pincode:</strong> @Model.Pincode<br>
+
+        </li>
+        <li class="yellow">
+            <strong>Circle Name:</strong> @Model.CircleName<br>
+            <strong>Region Name:</strong> @Model.RegionName<br>
+        </li>
+
+        </ul>
+    </div>
+</div>
